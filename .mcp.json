@@ -1,0 +1,44 @@
+{
+  "_readme": [
+    "MCP servers for this project. This file is COMMITTED and the repository is PUBLIC.",
+    "Every credentialed value is an environment-variable reference. Never paste a real",
+    "token, project key, or hostname into this file.",
+    "",
+    "Required environment variables, set per developer, never committed:",
+    "  SONAR_HOST_URL, SONAR_TOKEN            - the SonarQube gate",
+    "  CONTEXT7_API_KEY                       - Context7 documentation lookup",
+    "",
+    "SonarQube here is the free Community Build: it analyses the default branch only.",
+    "Never pass a `branch` or `pullRequest` argument to the sonarqube MCP tools -",
+    "both need Developer Edition or above. See .claude/standards/sonarqube.md."
+  ],
+  "mcpServers": {
+    "playwright": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest"]
+    },
+    "chrome-devtools": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "chrome-devtools-mcp@latest"]
+    },
+    "context7": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {
+        "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}"
+      }
+    },
+    "sonarqube": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "sonarqube-mcp-server@latest"],
+      "env": {
+        "SONARQUBE_URL": "${SONAR_HOST_URL:-http://localhost:9000}",
+        "SONARQUBE_TOKEN": "${SONAR_TOKEN}",
+        "SONARQUBE_ORG": "${SONAR_ORG:-}"
+      }
+    }
+  }
+}

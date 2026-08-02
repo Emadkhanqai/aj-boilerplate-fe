@@ -1,0 +1,89 @@
+# See https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+#
+# NOTE: `.claude/` is deliberately NOT ignored. The agentic harness — hooks, commands,
+# standards, agents, settings.json — is committed so that every developer and every
+# agent gets the same rules. Only the per-developer overrides below are excluded.
+
+# ---------------------------------------------------------------------------
+# Dependencies
+# ---------------------------------------------------------------------------
+node_modules/
+.pnp
+.pnp.js
+
+# ---------------------------------------------------------------------------
+# Build output
+# ---------------------------------------------------------------------------
+dist/
+tmp/
+out-tsc/
+.angular/
+*.tsbuildinfo
+
+# ---------------------------------------------------------------------------
+# Nx cache and workspace data
+# ---------------------------------------------------------------------------
+.nx/cache
+.nx/workspace-data
+.nx/migrate-runs
+
+# ---------------------------------------------------------------------------
+# Test output — Vitest coverage, Playwright reports, traces, videos, snapshots
+# ---------------------------------------------------------------------------
+coverage/
+test-results/
+playwright-report/
+blob-report/
+playwright/.auth/
+.playwright-mcp/
+__screenshots__/
+vitest.config.*.timestamp*
+
+# ---------------------------------------------------------------------------
+# Environment and key material — NEVER commit any of these
+# ---------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.pfx
+*.key
+
+# ---------------------------------------------------------------------------
+# Claude Code — per-developer state only; the harness itself is committed
+# ---------------------------------------------------------------------------
+.claude/settings.local.json
+.claude/worktrees/
+
+# ---------------------------------------------------------------------------
+# IDEs and editors
+# ---------------------------------------------------------------------------
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# ---------------------------------------------------------------------------
+# Logs and misc
+# ---------------------------------------------------------------------------
+npm-debug.log*
+yarn-error.log
+testem.log
+/connect.lock
+/.sass-cache
+/libpeerconnection.log
+/typings
+
+# ---------------------------------------------------------------------------
+# System files
+# ---------------------------------------------------------------------------
+.DS_Store
+Thumbs.db

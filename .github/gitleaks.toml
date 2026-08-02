@@ -1,0 +1,19 @@
+# Gitleaks configuration.
+#
+# Referenced by the secret-scan job via GITLEAKS_CONFIG. Extends the default ruleset
+# rather than replacing it — every built-in rule still applies.
+#
+# Add to the allowlist ONLY for values that are provably not credentials: obvious
+# placeholders and generated test fixtures. A real secret that is "already rotated" or
+# "only in dev" does not belong here; remove it from the history and rotate it instead.
+
+title = "Repository secret scanning"
+
+[extend]
+useDefault = true
+
+# There is deliberately NO allowlist. Nothing in this repository needs one: the runtime
+# configuration surface (`apps/web/src/environments/*` and `apps/web/public/env.js`) holds
+# empty placeholders only, and real values are injected at container start by
+# `docker/40-env.sh`. Keep it that way. An allowlist entry outlives the reason it was
+# added, and the next person to need one will copy the pattern rather than question it.

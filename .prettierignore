@@ -1,0 +1,12 @@
+# Add files here to ignore them from prettier formatting
+/dist
+/coverage
+/.nx/cache
+/.nx/workspace-data
+.angular
+
+# Generated from the API's OpenAPI document — never hand-formatted.
+libs/data-access/api-types/src/lib/types.ts
+
+# Vendored by `npx msw init`.
+apps/web/public/mockServiceWorker.js

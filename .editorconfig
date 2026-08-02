@@ -1,0 +1,48 @@
+# EditorConfig — https://editorconfig.org
+# Enforced in CI by Prettier + ESLint (TypeScript/HTML/CSS) and locally by the
+# `auto-format` hook in `.claude/hooks/`.
+
+root = true
+
+# ---------------------------------------------------------------------------
+# Defaults for every file
+# ---------------------------------------------------------------------------
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+max_line_length = 120
+
+[*.md]
+max_line_length = off
+trim_trailing_whitespace = false
+
+[*.{yml,yaml}]
+indent_size = 2
+
+[*.{json,jsonc,json5}]
+indent_size = 2
+
+[*.{js,mjs,cjs,ts,mts,cts,html,scss,css,less}]
+indent_size = 2
+quote_type = single
+
+[*.{sh,bash}]
+indent_size = 2
+
+[*.{bat,cmd,ps1}]
+end_of_line = crlf
+
+[{Makefile,makefile,*.mk}]
+indent_style = tab
+
+# ---------------------------------------------------------------------------
+# Generated code — the API types come from the OpenAPI document and are never
+# hand-edited, so no style rule applies to them.
+# ---------------------------------------------------------------------------
+[libs/data-access/api-types/src/lib/types.ts]
+trim_trailing_whitespace = false
+insert_final_newline = false

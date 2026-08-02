@@ -1,0 +1,11 @@
+node_modules/
+dist/
+dist-ssr/
+.git/
+.nx/cache
+.angular/
+coverage/
+test-results/
+playwright-report/
+.claude/
+docs/
