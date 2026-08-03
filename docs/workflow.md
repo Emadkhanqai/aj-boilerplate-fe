@@ -310,7 +310,7 @@ What that means in practice:
   recorded.
 
 Configuration lives in `SONAR_HOST_URL`, `SONAR_TOKEN`, and `SONAR_PROJECT_KEY` — environment
-variables locally; in CI, the `SONAR_HOST_URL` and `SONAR_PROJECT_KEY_FRONTEND` repository
+variables locally; in CI, the `SONAR_HOST_URL` and `SONAR_PROJECT_KEY` repository
 variables and the `SONAR_TOKEN` secret. Never committed. The rules in full:
 [`standards/sonarqube.md`](../.claude/standards/sonarqube.md).
 

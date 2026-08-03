@@ -122,11 +122,19 @@ for.
 - **PrimeNG's maintenance is not inherited here.** When PrimeNG ships an accessibility or
   browser-compatibility fix in `p-dialog`, this component does not get it. Its focus handling, its
   ARIA wiring, and its mobile behaviour are ours to keep working.
-- Its seven animations shipped without honouring `prefers-reduced-motion`, which a themed PrimeNG
-  component would have handled for us. They now do, via a `@media (prefers-reduced-motion: reduce)`
-  block. Treat that as the standing cost of this decision rather than a closed item: every
-  affordance a component library would have supplied here is one somebody has to remember to
-  build, and this one was missed until it was audited against `DESIGN.md` §8.
+- **That maintenance debt has now come due twice, and both times on accessibility.** First, its
+  seven animations shipped without honouring `prefers-reduced-motion`, which a themed PrimeNG
+  component would have handled for us; they now do, via a `@media (prefers-reduced-motion: reduce)`
+  block. Second, `.wn-body` scrolls (`overflow-y: auto`) but was not focusable, so a keyboard-only
+  user could not scroll it and never reached the rest of a long announcement — axe's
+  `scrollable-region-focusable`, WCAG 2.1.1, severity *serious*. It now carries `tabindex="0"` with
+  a resolved accessible name.
+
+  Note what the two have in common: neither was caught in review, both were caught by an automated
+  checker, and `p-dialog` would simply have been correct about both. Treat this as the standing
+  cost of the decision rather than a closed item — every affordance a component library would have
+  supplied here is one somebody has to remember to build, and you find out which ones only when a
+  tool tells you.
 
 ### Neutral
 

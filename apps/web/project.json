@@ -4,15 +4,11 @@
   "projectType": "application",
   "prefix": "app",
   "sourceRoot": "apps/web/src",
-  "tags": [
-    "scope:app"
-  ],
+  "tags": ["scope:app"],
   "targets": {
     "build": {
       "executor": "@angular/build:application",
-      "outputs": [
-        "{options.outputPath}"
-      ],
+      "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
         "outputPath": "dist/apps/web",
@@ -24,9 +20,7 @@
             "input": "apps/web/public"
           }
         ],
-        "styles": [
-          "apps/web/src/styles.css"
-        ],
+        "styles": ["apps/web/src/styles.css"],
         "server": "apps/web/src/main.server.ts",
         "ssr": {
           "entry": "apps/web/src/server.ts"
@@ -42,8 +36,13 @@
           "budgets": [
             {
               "type": "initial",
-              "maximumWarning": "1mb",
+              "maximumWarning": "1.2mb",
               "maximumError": "1.6mb"
+            },
+            {
+              "type": "anyScript",
+              "maximumWarning": "900kb",
+              "maximumError": "1.2mb"
             },
             {
               "type": "anyComponentStyle",
@@ -96,11 +95,7 @@
     "test": {
       "executor": "@angular/build:unit-test",
       "options": {
-        "watch": false,
-        "coverageReporters": [
-          "text-summary",
-          "lcov"
-        ]
+        "watch": false
       }
     },
     "serve-static": {

@@ -253,9 +253,14 @@ including the ones an agent wrote.
 
 ## Licence
 
-**No licence is set yet.** Until a `LICENSE` file is added, default copyright applies and no
-reuse rights are granted. The repository owner should choose a licence and commit the
-corresponding `LICENSE` file, carrying the appropriate copyright line.
+See [`LICENSE`](LICENSE). It is an **all-rights-reserved notice**, not a grant: it records the
+status quo (a repository with no licence file is already all rights reserved) so that the position
+is explicit rather than merely implied. Two things still need a human:
+
+- the copyright holder placeholder on line 3 must be replaced with the organisation that owns
+  this work, and
+- if the intention is for others to reuse this, an actual open-source licence has to be chosen
+  deliberately. Nothing here does that for you.
 
 `package.json` therefore declares `"license": "UNLICENSED"` deliberately — it matches the state
 above, and it stops npm tooling from implying a permission that has not been granted. Change

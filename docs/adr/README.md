@@ -13,9 +13,11 @@ true even after the decision is reversed, because it describes a moment.
 | [0003](0003-apiresponse-envelope-and-status-code-contract.md) | We depend on a uniform `ApiResponse<T>` envelope and a strict status-code contract | Accepted |
 | [0004](0004-three-repository-split.md) | Publish as three repositories, of which this is the frontend one | Accepted |
 | [0005](0005-bespoke-whats-new-modal-as-a-primeng-exception.md) | The "What's new" modal is bespoke markup and CSS — a single, bounded exception to ADR-0001 | Accepted |
+| [0006](0006-partial-rtl-without-an-i18n-library.md) | Direction switching without an i18n library — partial RTL, deliberately | Accepted |
+| [0007](0007-scripted-one-way-derivation-for-the-three-repositories.md) | Derivation of the single-stack repositories is a committed one-way script | Accepted |
 
-These five record the decisions taken when this boilerplate was built. Keep them as history and
-start your own series at `0006`, or delete them and start again at `0001` — but pick one and be
+These seven record the decisions taken when this boilerplate was built. Keep them as history and
+start your own series at `0008`, or delete them and start again at `0001` — but pick one and be
 consistent.
 
 0005 is the one to read alongside 0001 rather than instead of it: it is a worked example of how an
@@ -40,6 +42,6 @@ constrains future work, or will provoke "why is it like this?" from someone who 
 
 Do not write one for a choice a single pull request can undo.
 
-Reading all five is part of [Day-1 onboarding](../onboarding.md), and
+Reading all seven is part of [Day-1 onboarding](../onboarding.md), and
 [`.claude/templates/adr.md`](../../.claude/templates/adr.md) is the same shape in the form the
 agents use.

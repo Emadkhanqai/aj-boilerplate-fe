@@ -10,6 +10,7 @@ feature needs it — until then it lives in the feature that owns it.
 | `EmptyStateComponent` | `app-empty-state` | The "nothing here yet" panel body, with an optional action slot. |
 | `WhatsNewModalComponent` | `app-whats-new-modal` | "What's new" feature spotlight, mounted by the shell on every route change. Bespoke markup + CSS — see the exception below. |
 | `QUERY_CLIENT` | — | The shared TanStack `QueryClient`, wired to toast otherwise-unhandled API errors. |
+| `GlobalErrorHandler` | — | The app's `ErrorHandler`, via `provideGlobalErrorHandler()`. Logs with context, reports to the optional `ERROR_MONITOR` seam, and raises a deduplicated toast. Covers what TanStack Query does not: throws from effects, subscribes, and event handlers. |
 
 ## Rules
 
@@ -28,9 +29,10 @@ scoped to that single component, is restated in its class comment, and explicitl
 cover accessibility: the component carries `role="dialog"`, `aria-modal`, `aria-labelledby`, a
 labelled close button, and `role="tab"`/`aria-selected` dots itself, precisely because there is no
 PrimeNG component supplying them. Do not treat it as precedent — the next bespoke-looking request
-is still PrimeNG-only until someone argues this case again, and the case is argued in
-[ADR-0005](../../../docs/adr/0005-bespoke-whats-new-modal-as-a-primeng-exception.md). How the
-module is wired and how announcements are authored:
-[`docs/whats-new.md`](../../../docs/whats-new.md).
+is still PrimeNG-only until someone argues this case again.
 
+The full reasoning, the alternatives, and the costs — including the raised `anyComponentStyle`
+budget — are recorded in
+[ADR-0007](../../../../../docs/adr/0007-bespoke-whats-new-modal.md). What the component is *for* is
+in [`docs/whats-new.md`](../../../../../docs/whats-new.md).
 - No `HttpClient`, no routing decisions, no feature imports.

@@ -1,0 +1,111 @@
+// Workspace settings.
+//
+// DELIBERATELY MINIMAL. This file exists to make the editor agree with the configuration
+// this repository already has — `.editorconfig`, `.prettierrc`, the ESLint
+// flat config, and `.gitattributes` — not to add a second, competing source of truth.
+//
+// The rule: if a setting duplicates something `.editorconfig` or `.prettierrc` already
+// says, it does not belong here. Two files stating the same rule will disagree eventually,
+// and the one that wins will be whichever tool happens to run last. So there is no
+// `editor.tabSize`, no `editor.insertSpaces`, and no quote-style setting below — the
+// EditorConfig and Prettier extensions read those from the real config files.
+//
+// What IS here: which formatter owns which language, and which noise to keep out of search.
+//
+// Personal preferences (themes, font size, keybindings) belong in your user settings, not
+// in a committed workspace file. `.gitignore` tracks only `settings.json`, `tasks.json`,
+// `launch.json`, and `extensions.json` under `.vscode/`; everything else there is yours.
+{
+  // --- Formatting ----------------------------------------------------------
+  // Format on save, with ESLint's autofixable rules applied afterwards. `explicit` means
+  // "on an explicit save" — not on autosave, where a fix mid-keystroke is disorienting.
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+
+  // Prettier owns the application languages. `requireConfig` keeps it from formatting files
+  // that no Prettier config covers — without it, Prettier would impose its own defaults on
+  // every Markdown and JSON file in the repository, including the ones `.prettierignore`
+  // and `.editorconfig` already govern.
+  "prettier.requireConfig": true,
+  // Prettier reads `.editorconfig` for indent width and end-of-line. This is the default;
+  // it is stated because it is the mechanism that stops the two files disagreeing.
+  "prettier.useEditorConfig": true,
+
+  "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[javascript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[html]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[css]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[scss]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[json]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[jsonc]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[yaml]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+
+  // Markdown: format on save is off. `.editorconfig` sets `trim_trailing_whitespace = false`
+  // for Markdown because two trailing spaces are a hard line break, and a formatter that
+  // does not know that silently rewrites the document.
+  "[markdown]": {
+    "editor.formatOnSave": false,
+    "editor.wordWrap": "on",
+    "editor.trimAutoWhitespace": false,
+    "files.trimTrailingWhitespace": false
+  },
+
+  // --- Line endings --------------------------------------------------------
+  // LF, matching `.editorconfig` and `.gitattributes`. `\n` here is what stops a Windows
+  // editor writing CRLF into a file and breaking the shebang in `.claude/hooks/*.sh` —
+  // which takes every guardrail offline silently. See the header of `.gitattributes`.
+  "files.eol": "\n",
+
+  // --- Language services ---------------------------------------------------
+  // ESLint runs from the Nx workspace root, where `eslint.config.mjs` and the plugins live.
+  // Stated explicitly rather than left to discovery: with per-project configs under
+  // `apps/` and `libs/`, the extension otherwise picks one of those as its working
+  // directory and reports rules the command-line run never applies.
+  "eslint.workingDirectories": ["."],
+  "eslint.useFlatConfig": true,
+
+  // Use the workspace's own TypeScript, not the one bundled with VS Code, so the editor
+  // and `nx build` agree about what compiles.
+  "typescript.tsdk": "node_modules/typescript/lib",
+
+  // --- Search and file watching -------------------------------------------
+  // Build output and dependencies are not source. Excluding them keeps search results
+  // meaningful and keeps the file watcher off tens of thousands of files.
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/coverage": true,
+    "**/.nx": true,
+    "**/.angular": true,
+    "**/package-lock.json": true,
+    "**/playwright-report": true,
+    "**/test-results": true
+  },
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/dist/**": true,
+    "**/.nx/**": true,
+    "**/.angular/**": true
+  },
+
+  // No `files.exclude` here on purpose. It hides paths from Quick Open and search as well
+  // as from the explorer, and a file you cannot Quick Open is a file you will assume is
+  // missing. The two exclusions above are enough: they keep results meaningful without
+  // making anything unreachable.
+
+  // --- File associations ---------------------------------------------------
+  "files.associations": {
+    // `ini` rather than `dotenv`: `ini` is built in, so this needs no extension to work.
+    ".env.example": "ini"
+  },
+
+  // --- YAML schemas --------------------------------------------------------
+  // Validates the files most likely to be wrong in a way that only CI would notice.
+  "yaml.schemas": {
+    "https://json.schemastore.org/github-workflow.json": ".github/workflows/*.yml",
+    "https://json.schemastore.org/dependabot-2.0.json": ".github/dependabot.yml",
+    "https://json.schemastore.org/github-issue-forms.json": ".github/ISSUE_TEMPLATE/*.yml"
+  }
+}
