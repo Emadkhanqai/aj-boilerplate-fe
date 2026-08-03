@@ -73,7 +73,7 @@ What is in scope:
   design, and admitting it to the shared token set would make the product's tokens describe
   something no product surface uses.
 - **The style budget.** `apps/web/project.json`'s `anyComponentStyle` budget is raised from
-  4 kB / 8 kB to **8 kB / 10 kB** to accommodate it.
+  4 kB / 8 kB to **10 kB / 14 kB** to accommodate it — in two steps, see Consequences.
 
 What is explicitly **not** in scope:
 
@@ -110,18 +110,23 @@ for.
 - **There are now two styling idioms in the workspace**, and someone will find the second one
   first. A developer reading `whats-new-modal.css` before reading `DESIGN.md` learns the wrong
   lesson about how this codebase styles things.
-- **The style budget is looser than it was.** At 8 kB / 10 kB it will no longer catch a component
-  that grows to 6 kB of bespoke CSS — which is exactly the situation the original 4 kB warning
-  existed to surface early. We have traded some of that early warning away.
+- **The style budget is looser than it was, and was raised twice.** At 10 kB / 14 kB it will no
+  longer catch a component that grows to 6 kB of bespoke CSS — exactly what the original 4 kB
+  warning existed to surface early. We have traded that early warning away. The second raise is
+  worth remembering: 8 kB had been set flush against a stylesheet minifying to ~7.8 kB, so adding
+  the `prefers-reduced-motion` block this component was missing exceeded it by ten bytes. A ceiling
+  set to hug today's size is a tripwire, not a budget — it forces a choice between shaving
+  semantic CSS and moving the number, and shaving loses.
 - **The exception is precedent-shaped whether we like it or not.** "There is already one" is the
   opening argument for the second, and refusing it will cost an actual conversation.
 - **PrimeNG's maintenance is not inherited here.** When PrimeNG ships an accessibility or
   browser-compatibility fix in `p-dialog`, this component does not get it. Its focus handling, its
   ARIA wiring, and its mobile behaviour are ours to keep working.
-- Its seven animations do not currently honour `prefers-reduced-motion`, which a themed PrimeNG
-  component would have handled. That is a defect to fix in the component, not a cost of the
-  decision — but it is a concrete example of what "not inherited" means, and it is recorded in
-  `DESIGN.md` §8.
+- Its seven animations shipped without honouring `prefers-reduced-motion`, which a themed PrimeNG
+  component would have handled for us. They now do, via a `@media (prefers-reduced-motion: reduce)`
+  block. Treat that as the standing cost of this decision rather than a closed item: every
+  affordance a component library would have supplied here is one somebody has to remember to
+  build, and this one was missed until it was audited against `DESIGN.md` §8.
 
 ### Neutral
 
@@ -131,8 +136,6 @@ for.
 
 ### Follow-on work
 
-- Add a `prefers-reduced-motion: reduce` block to `whats-new-modal.css` that disables or shortens
-  the seven animations.
 - The ESLint rule flagging native control elements, already listed as follow-on work in
   [ADR-0001](0001-primeng-as-sole-component-library.md), needs a path-scoped exemption for this
   directory when it is written — an exemption that is itself the enforcement of this ADR's
@@ -192,7 +195,7 @@ The decision is being honoured while all four of these hold:
 
   Any third file in that output is either a violation of `DESIGN.md` §6 or a second exception that
   needs its own ADR.
-- `apps/web/project.json`'s `anyComponentStyle` budget is still 8 kB / 10 kB, and
+- `apps/web/project.json`'s `anyComponentStyle` budget is still 10 kB / 14 kB, and
   `npx nx build web` reports no budget warning. A second component approaching the ceiling is the
   signal to question that component, not to raise the budget.
 - `npx nx e2e web-e2e` stays axe-green with no rules disabled — the accessibility carve-out that

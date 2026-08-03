@@ -279,9 +279,10 @@ The stylesheet minifies to roughly 7.8 kB against an `anyComponentStyle` budget 
 10 kB error. There is not much headroom, and the correct response to exceeding it is to cut CSS,
 not to raise the budget again.
 
-One known gap, recorded in [`DESIGN.md`](../DESIGN.md) §8: the component's seven keyframe
-animations do not yet honour `prefers-reduced-motion`. That is a defect in the component, not a
-permitted variation — a `@media (prefers-reduced-motion: reduce)` block is outstanding work.
+The component's seven keyframe animations honour `prefers-reduced-motion`, as
+[`DESIGN.md`](../DESIGN.md) §8 requires: entrances are dropped so the panel appears already in its
+final state, the ambient loops stop, and only sub-200ms hover feedback remains. The bespoke-markup
+exception covers styling, never accessibility, so anything you add here must do the same.
 
 `whats-new-modal.spec.ts` covers the accessibility wiring, the carousel, the inert backdrop, the
 one-POST-acknowledges-all rule, and every branch of the body parser. It is the file to extend
