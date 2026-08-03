@@ -137,6 +137,12 @@ narrow it.
 
 **PrimeNG only.** No bare `<button>`, `<input>`, `<select>`, `<textarea>`, or hand-rolled
 `<table>` in a template. Dropdowns are filterable and A–Z sorted (`sortByLabel`) by default.
+*One documented exception:* `libs/shared/ui/src/lib/whats-new-modal` — a bespoke "What's new"
+spotlight with its own markup, literal colours, and keyframe animations. It is a one-off
+announcement surface that must not look like the rest of the app and has no PrimeNG equivalent;
+the exception is scoped to that component, is explained in its class comment and in
+[`DESIGN.md`](DESIGN.md), and does not extend to accessibility (it carries its own
+`role="dialog"`/`aria-*` wiring). Do not cite it as precedent for anything else.
 
 **Generated API types.** `npm run generate:api` writes
 `libs/data-access/api-types/src/lib/types.ts`. **Never hand-edit it** — the `protect-files` hook
