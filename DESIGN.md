@@ -112,12 +112,17 @@ consistent without anyone having to remember them.
 > `aria-labelledby`, a labelled close button, and `role="tab"` dots itself, because PrimeNG is
 > not there to supply them. Everything else stays PrimeNG-only and token-driven.
 >
+> The exception is **bounded, not total**. It covers markup and the stylesheet only. Icons still
+> come from PrimeIcons (`pi pi-times`, `pi pi-arrow-left`, `pi pi-arrow-right`) — there was no
+> reason to hand-draw those, and no reason to add a second icon set for three glyphs.
+>
 > This exception also costs one build-config change worth knowing about: the component's
 > stylesheet minifies to ~7.8 kB, so `apps/web/project.json`'s `anyComponentStyle` budget was
 > raised from 4 kB / 8 kB to **8 kB / 10 kB**. That budget exists to flag components carrying too
 > much bespoke CSS, and it was flagging correctly — this component genuinely is that. If a
 > *second* component ever approaches the new ceiling, the answer is to question that component,
-> not to raise the budget again.
+> not to raise the budget again. The full reasoning, including the alternatives that lost, is
+> [ADR-0005](docs/adr/0005-bespoke-whats-new-modal-as-a-primeng-exception.md).
 
 | Pattern | Rule |
 |---|---|
@@ -151,6 +156,10 @@ See `libs/feature-items/src/lib/item-list-page/item-list-page.html` for all four
 - Focus is visible — `:focus-visible` is styled globally in `tokens.css`; do not remove it.
 - Live regions (`role="status"` / `role="alert"`) announce async outcomes.
 - Respect `prefers-reduced-motion`; every animation in `components.css` already does.
+  **Known gap:** `libs/shared/ui/src/lib/whats-new-modal/whats-new-modal.css` carries seven
+  keyframe animations and no `prefers-reduced-motion` block. The bespoke-styling exception in §6
+  does not extend to accessibility, so this is a defect in that component rather than a permitted
+  variation — fix it there, and do not copy the omission.
 
 ## 9. Writing (microcopy)
 

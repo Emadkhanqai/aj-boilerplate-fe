@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="docs/assets/banner.png" alt="Al Jazeera Media &amp; Emerging Platforms engineering banner: the words &quot;Clone. Spec. Ship.&quot; set beside a Claude Code terminal window showing a spec-driven run, its test tallies, and a passing quality gate." width="100%">
+
 # Agentic Angular Boilerplate
 
 **An Angular 21 + Nx + PrimeNG front end that ships with its own engineering guardrails.**
@@ -52,10 +54,15 @@ lives in a [sibling repository](#related-repositories).
 - **The hard client-side flows already handled** — 401 session expiry, 403 access-denied
   routing, 404, and the **409 stale-`rowVersion` conflict**, which the sample feature implements
   end to end rather than describing.
+- **A "What's new" spotlight, wired once at the shell** — a modal that shows each user a
+  newly-shipped feature exactly once, the first time they land on a URL prefix bound to it.
+  Several pending announcements chain into one carousel instead of stacking. Shipping one is body
+  text, not a component change. [docs/whats-new.md](docs/whats-new.md).
 - **Offline demo mode** — `--configuration=demo` runs the whole app against MSW handlers with a
   built-in role picker. No API, no identity provider, no network.
 - **Tests that mean something** — Vitest + Testing Library for logic and components, Playwright
-  journeys, and an `@axe-core/playwright` accessibility gate on critical routes.
+  journeys, and an `@axe-core/playwright` accessibility gate on critical routes. `npx nx run-many
+  -t test --all` runs **178 tests across 8 projects** on a clean clone.
 - **A real quality gate** — lint including module boundaries, typecheck, unit tests with
   coverage, a production build, `npm audit`, Playwright, SonarQube (zero new
   Blocker/Critical/Major, ≥80% coverage on new code), Gitleaks, and CodeQL.
@@ -134,17 +141,19 @@ Full command reference: [CLAUDE.md](CLAUDE.md).
 │   ├── auth/                    session, route guards, role -> capability map
 │   ├── data-access/api-types/   GENERATED from OpenAPI — never hand-edited
 │   ├── data-access/api-client/  the only code that talks HTTP
-│   ├── shared/ui/               presentational components
-│   ├── shared/util/             formatters and helpers
-│   ├── shell/                   sidebar, top bar, layout, nav config
+│   ├── shared/ui/               presentational components, incl. the "What's new" modal
+│   ├── shared/util/             formatters, helpers, the en/ar language seam
+│   ├── shell/                   sidebar, top bar, layout, nav config, "What's new" wiring
 │   └── feature-items/           the sample feature — copy its shape, then delete it
 ├── docs/
 │   ├── adr/               architecture decision records (+ template)
 │   ├── specs/             feature specs (+ template)
 │   ├── api/               the API this app consumes, and how its types are generated
+│   ├── assets/            images used by the docs, including the banner above
 │   ├── handoff/           session handoffs written by the Stop hook
 │   ├── architecture.md    every library, and why each boundary exists
 │   ├── onboarding.md      Day-1 checklist
+│   ├── whats-new.md       the feature-spotlight modal: wiring, authoring, preview
 │   ├── workflow.md        Spec → Plan → Execute → Verify → Review, with diagrams
 │   └── definition-of-done.md
 ├── .github/

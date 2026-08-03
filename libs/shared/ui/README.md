@@ -28,5 +28,9 @@ scoped to that single component, is restated in its class comment, and explicitl
 cover accessibility: the component carries `role="dialog"`, `aria-modal`, `aria-labelledby`, a
 labelled close button, and `role="tab"`/`aria-selected` dots itself, precisely because there is no
 PrimeNG component supplying them. Do not treat it as precedent — the next bespoke-looking request
-is still PrimeNG-only until someone argues this case again.
+is still PrimeNG-only until someone argues this case again, and the case is argued in
+[ADR-0005](../../../docs/adr/0005-bespoke-whats-new-modal-as-a-primeng-exception.md). How the
+module is wired and how announcements are authored:
+[`docs/whats-new.md`](../../../docs/whats-new.md).
+
 - No `HttpClient`, no routing decisions, no feature imports.

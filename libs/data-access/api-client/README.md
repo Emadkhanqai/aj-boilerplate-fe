@@ -11,6 +11,12 @@ The only place in the workspace that talks HTTP.
 | `items-api.service.ts` | **SAMPLE** — the per-feature service pattern. Delete with `libs/feature-items`. |
 | `feature-announcements-api.service.ts` | "What's new" announcements: `unack(path)` / `ack(ids)`. Also declares `FeatureAnnouncement` **temporarily** — the endpoint is not in the OpenAPI document yet. Regenerate the types when it is, then delete the local interface. |
 
+`unack(path)` sends the current URL path and lets the **server** decide which announcements match
+it and which the user has already dismissed — the client holds no page list and no acknowledgement
+state. It maps a `null` payload to `[]` so "nothing pending" is not a null check at the call site.
+`ack(ids)` is idempotent server-side. Contract detail:
+[`docs/whats-new.md`](../../../docs/whats-new.md).
+
 ## Adding an API service
 
 One injectable per feature area, typed against `@aj-boilerplate/data-access/api-types`, no manual

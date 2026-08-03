@@ -51,6 +51,9 @@ human, on the change in front of them:
 - **PrimeNG only.** No native `<input>`, `<select>`, `<textarea>`, `<button>`, or hand-rolled
   `<table>` in a feature template — see
   [ADR-0001](adr/0001-primeng-as-sole-component-library.md). Dropdowns filterable and A–Z sorted.
+  There is exactly one sanctioned exception, `libs/shared/ui/src/lib/whats-new-modal`
+  ([ADR-0005](adr/0005-bespoke-whats-new-modal-as-a-primeng-exception.md)); a second one is not
+  done until it has an ADR of its own.
 - **No `any`.** Not in source, not in tests, not "temporarily". `unknown`, narrowed.
 - **No hand-written DTOs.** Nothing outside `libs/data-access/api-types` mirrors an API contract
   type, and `api-types` itself has not been hand-edited — see

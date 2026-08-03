@@ -18,9 +18,17 @@ A runnable starting point for a new web front end: an Angular 21 + Nx + PrimeNG 
 API client whose TypeScript types are *generated* from the API's OpenAPI document, an offline
 MSW demo mode, a quality gate, and a committed `.claude/` harness.
 
-It contains **no business domain**. The single sample feature, `libs/feature-items`, exists to
-prove the whole path end to end — list, form, optimistic concurrency, guards, tests, e2e — and
-is designed to be deleted once you have copied its shape.
+It contains **no business domain**. Two things are shipped built, and they are shipped for
+different reasons:
+
+- `libs/feature-items` — the **sample** vertical slice. It proves the whole path end to end
+  (list, form, optimistic concurrency, guards, tests, e2e) and is designed to be **deleted** once
+  you have copied its shape.
+- The **"What's new" feature spotlight** — a real, domain-free module you are meant to **keep**.
+  A modal that shows each user a newly-shipped feature once, wired at the shell rather than per
+  page. It spans four libraries: the component in `shared/ui`, the gateway in
+  `data-access/api-client`, the `en`/`ar` seam in `shared/util`, and the wiring in `shell`. See
+  [docs/whats-new.md](docs/whats-new.md).
 
 It talks to an API it does not own. The reference implementation of that API lives in the
 sibling repository `aj-boilerplate-be`; the combined tree is `aj-boilerplate-fs`.
@@ -42,7 +50,11 @@ sibling repository `aj-boilerplate-be`; the combined tree is `aj-boilerplate-fs`
 5. **Sample feature** — build your first real feature by copying the shape of
    `libs/feature-items`, then delete it (its README lists every step: the tag, the ESLint
    constraint entry, the path alias, the route, the nav entry).
-6. **Docs** — replace `README.md`, and start your own ADR series (keep ours as `0001`–`0004`
+6. **Announcements** — the "What's new" module needs nothing renamed, but it does need the API
+   to serve `GET /api/v1/features/unack` and `POST /api/v1/features/ack`. Until it does, the MSW
+   handler in `apps/web/src/mocks/handlers.ts` carries one sample announcement so `demo` mode
+   still shows the modal. [docs/whats-new.md](docs/whats-new.md) has the contract.
+7. **Docs** — replace `README.md`, and start your own ADR series (keep ours as `0001`–`0005`
    history or delete them).
 
 ## Stack
@@ -70,11 +82,17 @@ libs/
   auth/                    session, guards, role -> capability map
   data-access/api-types/   GENERATED from OpenAPI. Never hand-edited.
   data-access/api-client/  the only place that talks HTTP
-  shared/ui/               presentational components, no feature knowledge
-  shared/util/             formatters and helpers, no UI, no HTTP
-  shell/                   sidebar, top bar, layout, nav config
+  shared/ui/               presentational components, no feature knowledge.
+                           Includes `whats-new-modal/` — the "What's new" spotlight.
+  shared/util/             formatters and helpers, no UI, no HTTP.
+                           Includes `language.service.ts` — the `en`/`ar` `pick()` seam.
+  shell/                   sidebar, top bar, layout, nav config. `app-layout.ts` also mounts
+                           the "What's new" modal and runs its per-navigation check.
   feature-items/           SAMPLE FEATURE — read it, copy it, delete it
 ```
+
+Deleting `libs/feature-items` is expected. Deleting the "What's new" module is not — it is a
+working module with no domain in it, and `docs/whats-new.md` is its guide.
 
 ### The import direction is enforced, not advisory
 
@@ -143,6 +161,13 @@ announcement surface that must not look like the rest of the app and has no Prim
 the exception is scoped to that component, is explained in its class comment and in
 [`DESIGN.md`](DESIGN.md), and does not extend to accessibility (it carries its own
 `role="dialog"`/`aria-*` wiring). Do not cite it as precedent for anything else.
+
+**Shipping a "What's new" announcement is content, not code.** The body is a light markdown the
+modal parses at render time: a line starting `- ` becomes a tinted benefit card, its leading emoji
+becomes the card icon, and a spaced em-dash (` — `) splits the card title from its description;
+every other non-blank line becomes a centred paragraph. Announcing a feature therefore never
+touches `whats-new-modal.*`. If you find yourself editing the component to say something new, you
+are doing it wrong — read [docs/whats-new.md](docs/whats-new.md) first.
 
 **Generated API types.** `npm run generate:api` writes
 `libs/data-access/api-types/src/lib/types.ts`. **Never hand-edit it** — the `protect-files` hook
@@ -234,6 +259,7 @@ critical journeys, axe on every new or changed screen.
 | Model routing (enforced every prompt) | [`.claude/model-routing.md`](.claude/model-routing.md) |
 | The SonarQube gate, Community Build setup | [`.claude/standards/sonarqube.md`](.claude/standards/sonarqube.md) |
 | Every library and why each boundary exists | [docs/architecture.md](docs/architecture.md) |
+| The "What's new" spotlight: wiring, authoring, preview | [docs/whats-new.md](docs/whats-new.md) |
 | Five-stage workflow and guardrails | [docs/workflow.md](docs/workflow.md) |
 | Definition of Done | [docs/definition-of-done.md](docs/definition-of-done.md) |
 | Day-1 checklist | [docs/onboarding.md](docs/onboarding.md) |

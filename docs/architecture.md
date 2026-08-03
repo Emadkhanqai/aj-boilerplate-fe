@@ -399,6 +399,7 @@ the boundary rule forbids it, which is precisely why the DI seams exist.
 | `libs/data-access/api-client/src/lib/auth-token.ts` | `AUTH_TOKEN_PROVIDER` — the seam that supplies the current bearer token |
 | `libs/data-access/api-client/src/lib/session-expiry.ts` | `TOKEN_REFRESHER`, `SESSION_EXPIRED_NOTIFIER`, and the `markSessionExpired` / `isSessionExpiredError` pair |
 | `libs/data-access/api-client/src/lib/items-api.service.ts` | **SAMPLE** — the per-feature service pattern: one injectable, typed methods over `HttpClient`, versioned paths only, no manual envelope handling |
+| `libs/data-access/api-client/src/lib/feature-announcements-api.service.ts` | The "What's new" gateway: `unack(path)` and `ack(ids)`. Also declares `FeatureAnnouncement` **temporarily**, until the endpoint reaches the OpenAPI document |
 
 `ItemsApiService` is deliberately boring, and that is the point. It declares its base path once
 (`const ITEMS = '/api/v1/items'`), builds query parameters in a small pure helper,
@@ -416,6 +417,22 @@ enough, and a generic error toast on top of it is noise arriving exactly as the 
 
 `apiErrorMessage` always returns the same distinct copy for a 409 regardless of the caller's
 fallback, because "reload and look again" is the only correct next step for a stale-record conflict.
+
+`FeatureAnnouncementsApiService` is the same boring shape as `ItemsApiService` — one base path
+(`const FEATURES = '/api/v1/features'`), two methods, no envelope handling — with two details the
+caller depends on. `unack(path)` sends the current URL path as a query parameter and lets the
+**server** decide which announcements match it and which the user has already dismissed; the
+client never holds a page list and never filters. And it maps a `null` payload to `[]`, because an
+envelope with a null `data` unwraps to `null` and "nothing pending" should not become a null check
+at the call site. `ack(ids)` posts `{ featureIds }` and answers `204`; the server skips ids it has
+already recorded, so a double-dismiss is harmless.
+
+The `FeatureAnnouncement` interface declared in that file is the one deliberate, documented
+exception to *"never hand-write an API type"* — the endpoint is not in the OpenAPI document yet, so
+there is nothing to generate from. It is marked as temporary in the file itself, and the instruction
+is explicit: when the backend publishes the endpoint, regenerate, delete the local interface, and
+import the generated one. Left alone, it becomes exactly the second declaration of a server
+contract that [ADR-0002](adr/0002-openapi-generated-frontend-types.md) exists to prevent.
 
 **The common mistake.** Writing `response.data` in a feature component. The interceptor already
 unwrapped it; if you see `.data` outside this library, something is bypassing the interceptor. The
@@ -504,7 +521,7 @@ moves. The second mistake is believing the guard *is* the permission.
 **May live here.** `format.ts` (dates, byte sizes, initials, PascalCase humanising),
 `sort-by-label.ts` (the A–Z ordering every dropdown uses by default), `validate-positive-int.ts`
 (one shared numeric field check, so the error copy never drifts), `download.ts` (trigger a browser
-download from a `Blob`), `document-title.service.ts`.
+download from a `Blob`), `document-title.service.ts`, `language.service.ts`.
 
 **May not live here.** Business calculations. A rule that belongs to a feature belongs in that
 feature — or, if the server owns it, on the server. `format.ts` says so explicitly about currency:
@@ -521,6 +538,19 @@ unit tests need no Angular testing harness at all.
 in different places never read the same instant differently — change it in one place when the
 product decides otherwise.
 
+`language.service.ts` is the workspace's whole bilingual story, and it is deliberately two members
+long: a `current` signal holding `'en' | 'ar'` (English by default, Arabic wired but not yet
+exposed in the UI), and `pick(en, ar)`. It exists because API payloads carry paired `*En`/`*Ar`
+fields — `FeatureAnnouncement` is the shipped example — and *something* has to choose which one
+renders. `pick` falls back through the other language before it gives up on `''`, so a record with
+a missing Arabic translation renders the English rather than a blank line.
+
+Read the file's own warning before extending it: this is **not** an i18n framework and is not the
+seed of one. There is no message catalogue, no plural handling, no locale-aware date or number
+formatting here. If the product needs those, adopt a real library (`$localize`, Transloco) and
+delete this service — do not grow it into a home-made one, which is how a workspace ends up
+maintaining a translation layer nobody chose.
+
 **The common mistake.** Using it as a junk drawer. A helper that only one feature calls belongs in
 that feature; putting it here makes it everyone's dependency and nobody's responsibility. The second
 is reaching for `HttpClient` "just to look something up" — that import is a boundary violation and
@@ -533,8 +563,9 @@ lint will say so, but the real problem is that a helper which fetches is not a h
 **Single responsibility.** Presentational components with no feature knowledge.
 
 **May live here.** `StatusPillComponent` (`app-status-pill`), `ConfirmDialogComponent`
-(`app-confirm-dialog`), `EmptyStateComponent` (`app-empty-state`), and `QUERY_CLIENT` — the shared
-TanStack `QueryClient`, wired to toast otherwise-unhandled API errors.
+(`app-confirm-dialog`), `EmptyStateComponent` (`app-empty-state`), `WhatsNewModalComponent`
+(`app-whats-new-modal`), and `QUERY_CLIENT` — the shared TanStack `QueryClient`, wired to toast
+otherwise-unhandled API errors.
 
 **May not live here.** `HttpClient`, routing decisions, or a feature import. A component belongs
 here only once a **second** feature needs it — until then it lives in the feature that owns it. A
@@ -552,10 +583,40 @@ role-based locators, and blocks the main thread.
 the library and is described in full under [server state, caching, and the global error
 toast](#server-state-caching-and-the-global-error-toast).
 
+`libs/shared/ui/src/lib/whats-new-modal/whats-new-modal.ts` is the "What's new" feature spotlight,
+and it belongs here for the ordinary reason: it is pure presentation. It takes
+`features: FeatureAnnouncement[]` as a required `input`, emits `closed: string[]` as an `output`,
+and does no HTTP and no routing of its own — the shell supplies the list and decides what a
+dismiss means. It carries two behaviours worth knowing before you touch it:
+
+- **The body is parsed, not authored in code.** `parts()` splits the announcement body line by
+  line. A line starting `- ` becomes a tinted benefit card; its leading emoji — matched by the
+  Unicode `\p{Extended_Pictographic}` property rather than a hardcoded emoji list, so a glyph
+  nobody anticipated still works — becomes the card icon, and the first spaced em-dash (` — `)
+  splits the card title from its description. Every other non-blank line becomes a centred
+  paragraph, and blank lines are structural separators that render nothing. That is the whole
+  format, and it exists so shipping an announcement never means editing this component.
+- **`onBackdrop()` is an empty method on purpose.** Clicking outside the panel does nothing.
+  Dismissal is only "Got it" or the close button, because the acknowledgement it triggers is
+  permanent and per-user across every device — a stray click must not spend it. The class comment
+  says *"Do not 'fix' this into a close handler"*, and
+  `whats-new-modal.spec.ts` has a test named for it.
+
+`dismiss()` emits **every** id in `features()`, not just the page the user happened to end on, so
+a three-page carousel is acknowledged in a single request.
+
+This component is also the workspace's one sanctioned exception to PrimeNG-only and to
+token-driven styling — bespoke markup and its own stylesheet, with only PrimeIcons glyphs
+retained. The reasoning, the boundary, and the honest cost are in
+[ADR-0005](adr/0005-bespoke-whats-new-modal-as-a-primeng-exception.md); the visual side is in
+[`DESIGN.md`](../DESIGN.md) §6.
+
 **The common mistake.** Redefining a colour in a component. Styling comes from
 `apps/web/src/design/components.css` and the tokens it reads. The second is reaching for a native
 `<button>` — PrimeNG everywhere is what makes focus, disabled, and keyboard behaviour consistent,
-and it is why the axe suite passes with no rules disabled.
+and it is why the axe suite passes with no rules disabled. The third, newer one is citing
+`whats-new-modal` as precedent for either: it is a bounded exception with an ADR behind it, not an
+opening.
 
 ---
 
@@ -566,9 +627,9 @@ content area.
 
 **May live here.** `libs/shell/src/lib/nav-config.ts` (the navigation),
 `libs/shell/src/lib/app-layout/app-layout.ts` (the component the guarded route group renders into;
-it also owns the route → page-title mapping and the redirect on session expiry), and
-`libs/shell/src/lib/sidebar/sidebar.ts` and `libs/shell/src/lib/top-bar/top-bar.ts` (presentation
-only).
+it also owns the route → page-title mapping, the redirect on session expiry, and the "What's new"
+per-navigation check), and `libs/shell/src/lib/sidebar/sidebar.ts` and
+`libs/shell/src/lib/top-bar/top-bar.ts` (presentation only).
 
 **May not live here.** Feature logic. Public pages — login, auth callback, signing out, access
 denied, and 404 — deliberately render **outside** this shell, which is why they live in
@@ -587,9 +648,41 @@ it makes — hiding a link here protects nothing."*
 shell, so a page can never disagree with the header above it. Extend it when you add a route; a page
 that sets its own header independently is how the two drift.
 
+**The "What's new" check lives here, and nowhere else.** `app-layout.ts` runs an `effect` that
+reads the `path()` signal — fed by `NavigationEnd` events — and, when there is a session, calls
+`FeatureAnnouncementsApiService.unack()`. Rendering is a single `@if (whatsNewFeatures().length > 0)`
+around `<app-whats-new-modal>` in the shell template. Three consequences follow from that placement,
+and they are the reason for it:
+
+1. **Every route is covered with no per-page wiring.** A page added tomorrow inherits the behaviour
+   by existing. Nothing opts in.
+2. **One announcement can target several unrelated pages.** The server matches the path it was
+   given against that announcement's registered prefixes, so the scope of an announcement is a
+   server-side property, not a decision scattered across page components.
+3. **The check follows navigation, not mounting.** A route change within the same page component
+   still fires it.
+
+Two defensive details in that effect are easy to "simplify" into bugs:
+
+- **The pending list is only ever set to a non-empty value, and is never cleared on success.**
+  `if (list.length > 0) this.whatsNewFeatures.set(list)` looks like a missing `else`. It is not.
+  The request is not suppressed while a modal is already open, so a fast double-navigation can land
+  a *newer* response carrying nothing pending while the user is still reading — and an
+  unconditional `set` would blank the modal mid-sentence. The signal is cleared in exactly one
+  place: `onWhatsNewClosed`, on a deliberate dismiss.
+- **Dismissal clears locally first, then POSTs.** `onWhatsNewClosed` sets the signal to `[]` before
+  calling `ack()`, so a failed request still closes the modal; the announcement simply re-surfaces
+  on a later navigation and the user dismisses it again. A modal that refuses to go away because a
+  background request failed is a far worse failure than one shown twice. Both the `unack` and `ack`
+  error handlers are deliberately silent — a spotlight is not critical UX, and a toast about one
+  would be noise about something the user did not ask for.
+
 **The common mistake.** Putting a feature's state in the layout because "the header needs it". The
 layout should render what it is given. The second is adding a nav entry without a matching route
-guard, which produces a visible link that lands on a page the user is then bounced off.
+guard, which produces a visible link that lands on a page the user is then bounced off. The third
+is moving the "What's new" check into a page "so it only runs where it is needed" — that trades one
+line in the shell for an opt-in every future page must remember, and quietly caps an announcement
+at one page.
 
 ---
 
@@ -1112,6 +1205,8 @@ alias or eslint entry will surface there rather than months later.
 | OpenAPI-generated frontend types | [adr/0002-openapi-generated-frontend-types.md](adr/0002-openapi-generated-frontend-types.md) |
 | The `ApiResponse` envelope and status-code contract | [adr/0003-apiresponse-envelope-and-status-code-contract.md](adr/0003-apiresponse-envelope-and-status-code-contract.md) |
 | The three-repository split | [adr/0004-three-repository-split.md](adr/0004-three-repository-split.md) |
+| The one bespoke-component exception to PrimeNG-only | [adr/0005-bespoke-whats-new-modal-as-a-primeng-exception.md](adr/0005-bespoke-whats-new-modal-as-a-primeng-exception.md) |
+| The "What's new" spotlight: wiring, authoring, preview | [whats-new.md](whats-new.md) |
 | The harness itself | [../.claude/README.md](../.claude/README.md) · [../.claude/model-routing.md](../.claude/model-routing.md) |
 
 The standards the agents and the reviewers enforce:

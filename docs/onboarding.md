@@ -170,11 +170,14 @@ easier to learn the bar on something small.
 ls docs/adr/
 ```
 
-Read all four [ADRs](adr/README.md). They tell you what was decided, why, and what was rejected —
+Read all five [ADRs](adr/README.md). They tell you what was decided, why, and what was rejected —
 which is the context that stops you from re-proposing an alternative the team already ruled out.
 Two of them will come up in your first week: PrimeNG-only
 ([ADR-0001](adr/0001-primeng-as-sole-component-library.md)) and generated API types
-([ADR-0002](adr/0002-openapi-generated-frontend-types.md)).
+([ADR-0002](adr/0002-openapi-generated-frontend-types.md)). Read
+[ADR-0005](adr/0005-bespoke-whats-new-modal-as-a-primeng-exception.md) straight after 0001: it is
+the one sanctioned exception to it, and knowing where its boundary sits is the difference between
+citing it correctly and citing it as permission.
 
 Then read [the spec template](specs/TEMPLATE.md) end to end, including the guidance blockquotes.
 It is the shape of every piece of work you will be asked to do here.
@@ -189,7 +192,7 @@ It is the shape of every piece of work you will be asked to do here.
 - [ ] `CLAUDE.md`, `DESIGN.md`, `docs/architecture.md`, and the relevant standards read
 - [ ] `/qa` green locally — lint, typecheck, tests, production build, e2e, audit
 - [ ] One small change shipped through all five stages, pair-reviewed by the tech lead
-- [ ] All four ADRs read
+- [ ] All five ADRs read
 - [ ] Spec template read
 
 ---
@@ -209,5 +212,6 @@ write down.
 | What is the process? | [`docs/workflow.md`](workflow.md) |
 | When can I merge? | [`docs/definition-of-done.md`](definition-of-done.md) |
 | What does the API guarantee? | [`docs/api/README.md`](api/README.md) |
+| How does the "What's new" modal work? | [`docs/whats-new.md`](whats-new.md) |
 | What are the coding standards? | [`.claude/standards/`](../.claude/standards/angular.md) |
 | What happened in the last session? | [`docs/handoff/`](handoff/README.md) |
