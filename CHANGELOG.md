@@ -72,7 +72,7 @@ Nothing yet.
 
 ---
 
-## [0.1.0] — 2026-08-03
+## [0.1.0] — 2026-08-04
 
 The initial extraction, published as three repositories. Everything below is the starting
 state rather than a change from something; subsequent entries will read as changes.
@@ -184,3 +184,24 @@ Stated here rather than discovered later:
 
 [Unreleased]: https://github.com/<your-org>/aj-boilerplate-fe/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/<your-org>/aj-boilerplate-fe/releases/tag/v0.1.0
+
+### Also in this first tag
+
+Fixes made between writing the entries above and cutting the tag.
+
+- **Dependency advisories cleared.** Angular moves to 21.2.19, which patches an
+  HttpTransferCache cache-key ambiguity and two XSS advisories in packages that ship to the
+  browser. Nx moves to 23.1.1, and `brace-expansion`, `postcss` and `undici` are pinned
+  forward through `overrides`. `npm audit --audit-level=high` reports nothing.
+- **Coverage was never produced.** The CI command passed `--coverageReporters`, valid on the
+  Angular executor and invalid on `@nx/vite`, so it crashed exactly the two projects using
+  the latter while the other six wrote reporters that do not include lcov. The reporter now
+  lives in each project's own configuration, and `sonar.javascript.lcov.reportPaths` is a
+  wildcard instead of a single path that never existed.
+- **The page scrolled sideways on a phone.** The topbar is a flex row whose items cannot
+  shrink below their content, so it grew past the viewport and took the document with it —
+  43px of overflow at 320px, in both directions. It now wraps and the title truncates. The
+  items table, wider than a phone by nature, gained the `.scroll` container `DESIGN.md`
+  already required.
+- Two `vitest.config.mts` files and one Playwright spec used `__dirname` in an ES module,
+  which Vite tolerated before the upgrade and rejects now.
