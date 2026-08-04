@@ -30,8 +30,8 @@
       "options": {
         "watch": false,
         "coverageReporters": [
-          "text-summary",
-          "lcov"
+          "lcov",
+          "text-summary"
         ]
       }
     },

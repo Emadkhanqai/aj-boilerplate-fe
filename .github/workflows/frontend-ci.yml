@@ -9,9 +9,9 @@ name: Frontend CI
 # only on pushes to main. That is a Community Build constraint, explained in full
 # above the `quality-gate` job.
 
-# No `paths:` filter, deliberately. The full-stack repository needs one so a backend-only
-# change does not run the Node gate; here every path IS the frontend, so a filter would either
-# match everything or quietly skip the gate on a change that deserved it.
+# No `paths:` filter, deliberately. A repository holding more than one stack needs one so a
+# backend-only change does not run the Node gate; here every path IS the frontend, so a filter
+# would either match everything or quietly skip the gate on a change that deserved it.
 on:
   pull_request:
   push:
@@ -100,7 +100,7 @@ jobs:
           fi
 
       - name: Unit tests with coverage
-        run: npx nx affected -t test --parallel=3 --coverage --coverageReporters=lcov --coverageReporters=text-summary
+        run: npx nx affected -t test --parallel=3 --coverage
 
       - name: Upload coverage
         if: always()
@@ -309,14 +309,12 @@ jobs:
   # Playwright, Gitleaks, and CodeQL, plus the local sonar-pre-push hook.
   # See .claude/standards/sonarqube.md.
   #
-  # THE PROJECT KEY IS ITS OWN, also deliberate: several scanners pushing to one
-  # Community project would overwrite each other on every run, and the last one
-  # to finish would win. Set the `SONAR_PROJECT_KEY` repository variable
-  # — the name is what the sibling repositories use too, so a shared SonarQube
-  # server can host all three without them colliding.
+  # SEPARATE PROJECT KEY FROM THE BACKEND, also deliberate: two scanners pushing
+  # to one Community project would overwrite each other on every run, and the
+  # later one would win. Set the `SONAR_PROJECT_KEY` repository variable.
   #
-  # TypeScript needs only the generic SonarScanner CLI, which is this action. No
-  # build wrapper is involved: the analysis reads the sources and the lcov report.
+  # TypeScript needs only the generic SonarScanner CLI (this action). The C#
+  # analyser is the one that must wrap the build — see backend-ci.yml.
   # --------------------------------------------------------------------------
   quality-gate:
     name: SonarQube quality gate
@@ -341,7 +339,7 @@ jobs:
       # run-many, not affected: the analysis covers the whole project, so the
       # coverage report has to as well.
       - name: Unit tests with lcov coverage
-        run: npx nx run-many -t test --parallel=3 --coverage --coverageReporters=lcov
+        run: npx nx run-many -t test --parallel=3 --coverage
 
       # No sonar.branch.name and no sonar.pullrequest.* — both need Developer
       # Edition or above. On Community Build this IS the default-branch analysis.
