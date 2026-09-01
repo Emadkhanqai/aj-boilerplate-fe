@@ -68,7 +68,14 @@ derived here — this repository tracks releases only.
 
 ## [Unreleased]
 
-Nothing yet.
+### Fixed
+
+- `docs/upgrading.md` told you to start your own ADR series at `0008`, and called the shipped
+  set "the seven ADRs". There are eleven, so `0008`–`0011` are taken and that advice collided
+  with real files. It now says to count `docs/adr/` at the version you cloned, because this
+  number moves with every release. **If you already numbered your own ADRs from `0008`, you
+  have a clash to reconcile** — `docs/adr/README.md` is explicit that numbers are never
+  reused or renumbered, so renumber *yours*, not the boilerplate's.
 
 ---
 
