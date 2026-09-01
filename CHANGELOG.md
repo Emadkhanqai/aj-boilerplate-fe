@@ -68,6 +68,18 @@ derived here — this repository tracks releases only.
 
 ## [Unreleased]
 
+Nothing yet.
+
+---
+
+## [0.1.1] — 2026-09-01
+
+A patch release, and both entries are the same story: a tree that was green in August went
+red in September without anybody touching it. Advisories were published against OS packages
+in the base image nobody chose directly, and one instruction in the upgrade guide went stale
+because the boilerplate grew. Nothing changes shape, and there is nothing in your own code
+to alter.
+
 ### Fixed
 
 - `docs/upgrading.md` told you to start your own ADR series at `0008`, and called the shipped
@@ -76,6 +88,15 @@ derived here — this repository tracks releases only.
   number moves with every release. **If you already numbered your own ADRs from `0008`, you
   have a clash to reconcile** — `docs/adr/README.md` is explicit that numbers are never
   reused or renumbered, so renumber *yours*, not the boilerplate's.
+
+- **The frontend image failed the container scan.** The `nginx:alpine` base is rebuilt on
+  nginx's schedule rather than Alpine's, so between those rebuilds it ships packages for
+  which Alpine has already published a fix — here `libcrypto3` and `libssl3`
+  (CVE-2026-14456) and `libexpat` (CVE-2026-66046), four HIGH findings, all fixable. The
+  runtime stage now runs `apk upgrade --no-cache`, which closes the window without pinning
+  a base tag that goes stale and without an allowlist entry — `.trivyignore.yaml` ships
+  empty on purpose. **Take this one**: if you built from the v0.1.0 Dockerfile, the same
+  gap is in your image.
 
 ---
 
